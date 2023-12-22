@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Location</title>
+</head>
+<body>
+    <script>
+        var initialLocation={
+            lat: 30.773632491630938,
+            lng: 76.56732100181273 
+        };
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    // Calculate distance between two points
+                    var lat1 = position.coords.latitude;
+                    var lon1 = position.coords.longitude;
+                    var lat2 = initialLocation.lat;
+                    var lon2 = initialLocation.lng;
+                    var R = 6371; // km
+                    var dLat = (lat2 - lat1).toRad();
+                    var dLon = (lon2 - lon1).toRad();
+                    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                        Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                    var d = R * c;
+                    // console.log(d);
+                    console.log(dLat);
+                    console.log(dLon);
+                    console.log("Distance between two points is " + d + " km");
+                }
+                );
+            } else {
+                console.log("Geolocation is not supported by this browser.");
+            }
+        }
+        Number.prototype.toRad = function () {
+            return this * Math.PI / 180;
+        }
+        setInterval(getLocation, 1000);
+    </script>
+</body>
+</html>
+
