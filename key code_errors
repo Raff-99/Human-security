@@ -1,0 +1,51 @@
+//this is a c++ code that is holding the key concept for our on web running html code
+#include <iostream>
+#include <cmath>
+#include <unistd.h>
+#include <string>
+#include <sstream>
+
+#include <gps.h>
+
+double degToDecimal(double degree, double minutes, double seconds, bool negative) {
+    double decimalDegree = degree + (minutes / 60) + (seconds / 3600);
+    if (negative)
+        decimalDegree = -decimalDegree;
+    return decimalDegree;
+}
+
+void printLocation(gps_data_t &gps_data) {
+    double latitude = degToDecimal(std::abs(gps_data.fix.latitude), 0, 0, gps_data.fix.latitude < 0);
+    double longitude = degToDecimal(std::abs(gps_data.fix.longitude), 0, 0, gps_data.fix.longitude < 0);
+    std::cout << "Latitude: " << latitude << ", Longitude: " << longitude << std::endl;
+}
+
+int main() {
+    struct gps_data_t gps_data;
+
+    if (!gps_open("localhost", "2947", &gps_data)) {
+        std::cerr << "Failed to open gpsd connection.\n";
+        return 1;
+    }
+
+    for (int i = 0; i < 10; i++) {
+        if (!gps_waiting(&gps_data, 5000000)) {
+            std::cerr << "No data from gpsd.\n";
+            return 1;
+        }
+
+        if (!gps_read(&gps_data)) {
+            std::cerr << "Error reading gpsd data.\n";
+            return 1;
+        }
+
+        if (gps_data.status > STATUS_NO_FIX) {
+            printLocation(gps_data);
+            break;
+        }
+    }
+
+    gps_close(&gps_data);
+
+    return 0;
+}
